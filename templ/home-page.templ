@@ -4,7 +4,7 @@ templ HomePage() {
 	@BasePage() {
 		<div id="home-page">
 			<h1>Welcome to Goths</h1>
-			<button hx-post="/logout" hx-target="#home-page">Logout</button>
+			<button hx-post="/logout" hx-target="#home-page" hx-push-url="true">Logout</button>
 		</div>
 	}
 }
