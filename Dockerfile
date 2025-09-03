@@ -22,7 +22,7 @@ WORKDIR /app
 COPY --from=builder /app/goths .
 
 # Copy migration files
-COPY sqlc/schema/ ./schema/
+COPY sqlc/schema/ /app/schema/
 
 # Run the application
 CMD ["./goths"]
