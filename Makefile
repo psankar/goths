@@ -7,6 +7,6 @@ docker:
 	@echo "Generating SQL files..."
 	@docker run --rm -v $(PWD)/sqlc:/src -w /src sqlc/sqlc:latest generate
 	@echo "Generating template files..."
-	@docker run --rm -v $(PWD)/templ:/src -w /src ghcr.io/a-h/templ:latest generate
+	@docker run --rm -v $(PWD):/src -w /src/templ ghcr.io/a-h/templ:latest generate
 	@echo "Building Docker image..."
 	@docker build -t goths:latest .
