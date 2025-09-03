@@ -42,8 +42,8 @@ func main() {
 		return
 	}
 
+	slog.Info("Migrations applied successfully. Launching server...")
 	http.HandleFunc("/", handlers.Login)
 
-	slog.Info("Launched goths on :8080")
 	http.ListenAndServe(":8080", nil)
 }
