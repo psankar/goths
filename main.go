@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 
+	"psankar-goths-demo/libgoths"
 	"psankar-goths-demo/sqlc/db"
 	"psankar-goths-demo/templ"
 
@@ -45,7 +46,8 @@ func main() {
 
 	slog.Info("Migrations applied successfully. Launching server...")
 	http.HandleFunc("/", RootHandler)
-	http.HandleFunc("/login", LoginHandler)
+	http.HandleFunc("GET /login", LoginGetHandler)
+	http.HandleFunc("POST /login", LoginPostHandler)
 	http.HandleFunc("/home", HomeHandler)
 
 	http.ListenAndServe(":8080", nil)
@@ -60,7 +62,39 @@ func HomeHandler(w http.ResponseWriter, r *http.Request) {
 	homePage.Render(r.Context(), w)
 }
 
-func LoginHandler(w http.ResponseWriter, r *http.Request) {
-	loginForm := templ.LoginForm()
+func LoginGetHandler(w http.ResponseWriter, r *http.Request) {
+	loginForm := templ.LoginForm("")
 	loginForm.Render(r.Context(), w)
+}
+
+func LoginPostHandler(w http.ResponseWriter, r *http.Request) {
+	if err := r.ParseForm(); err != nil {
+		http.Error(w, "Failed to parse form", http.StatusBadRequest)
+		return
+	}
+
+	email := r.FormValue("email")
+	password := r.FormValue("password")
+
+	user, err := queries.Login(r.Context(), db.LoginParams{
+		Email:    email,
+		Password: password,
+	})
+	if err != nil {
+		if err == pgx.ErrNoRows {
+			templ.LoginForm(libgoths.LoginFailed).Render(r.Context(), w)
+			return
+		}
+
+		slog.Error("Error during login", "error", err)
+		templ.LoginForm(libgoths.InternalError).Render(r.Context(), w)
+		return
+	}
+
+	slog.Info("User logged in", "email", user.Email)
+	http.Redirect(w, r, "/home", http.StatusSeeOther)
+}
+
+func LogoutHandler(w http.ResponseWriter, r *http.Request) {
+	http.Redirect(w, r, "/login", http.StatusSeeOther)
 }

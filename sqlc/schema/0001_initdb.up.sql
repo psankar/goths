@@ -1,16 +1,21 @@
 BEGIN;
 
-CREATE TABLE authors (
-    author_id SERIAL PRIMARY KEY,
-    email TEXT NOT NULL UNIQUE
+CREATE TABLE users (
+    user_id SERIAL PRIMARY KEY,
+    email TEXT NOT NULL UNIQUE,
+    password TEXT NOT NULL
 );
 
 CREATE TABLE posts (
     post_id SERIAL PRIMARY KEY,
-    author_id INT NOT NULL REFERENCES authors(author_id),
+    user_id INT NOT NULL REFERENCES users(user_id),
     title TEXT NOT NULL,
     content TEXT NOT NULL,
     published_at TIMESTAMPTZ DEFAULT NOW()
 );
+
+INSERT INTO users (email, password) VALUES 
+    ('user1@example.com', 'password'),
+    ('user2@example.com', 'password');
 
 COMMIT;

@@ -2,6 +2,9 @@ package templ
 
 templ HomePage() {
 	@BasePage() {
-		<h1>Welcome to Goths</h1>
+		<div id="home-page">
+			<h1>Welcome to Goths</h1>
+			<button hx-post="/logout" hx-target="#home-page">Logout</button>
+		</div>
 	}
 }

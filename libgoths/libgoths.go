@@ -8,3 +8,8 @@ type LoginRequest struct {
 type LoginResponse struct {
 	Token string `json:"token"`
 }
+
+const (
+	LoginFailed   = "Invalid email or password"
+	InternalError = "Internal server error"
+)
