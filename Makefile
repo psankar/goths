@@ -1,17 +1,12 @@
-.PHONY: all generate-templ generate-sqlc
-all: generate-templ generate-sqlc
-	@if [ -f .templ_success ] && [ -f .sqlc_success ]; then \
-		echo "Launching Goths server ..."; \
-		rm -f .templ_success .sqlc_success; \
-		go run main.go; \
-	else \
-		echo "One or both commands failed, skipping go run main.go"; \
-		rm -f .templ_success .sqlc_success; \
-		exit 1; \
-	fi
+.PHONY: all generate-templ generate-sqlc docker
+all: docker
+	@echo "Launching Goths server using docker-compose..."
+	docker-compose up
 
-generate-templ:
-	@cd templ && templ generate && touch ../.templ_success || true
-
-generate-sqlc:
-	@cd sqlc && sqlc generate && touch ../.sqlc_success || true
+docker:
+	@echo "Generating SQL files..."
+	@docker run --rm -v $(PWD)/sqlc:/src -w /src sqlc/sqlc:latest generate
+	@echo "Generating template files..."
+	@docker run --rm -v $(PWD)/templ:/src -w /src ghcr.io/a-h/templ:latest generate
+	@echo "Building Docker image..."
+	@docker build -t goths:latest .
