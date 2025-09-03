@@ -1,0 +1,6 @@
+BEGIN;
+
+DROP TABLE posts;
+DROP TABLE authors;
+
+COMMIT; 
