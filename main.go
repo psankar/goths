@@ -19,6 +19,18 @@ import (
 
 var queries *db.Queries
 
+// requireAuth is a middleware that checks if the user is authenticated
+func requireAuth(next http.HandlerFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		_, authenticated := libgoths.GetAuthenticatedUser(r)
+		if !authenticated {
+			http.Redirect(w, r, "/login", http.StatusSeeOther)
+			return
+		}
+		next(w, r)
+	}
+}
+
 func main() {
 	pgURL := os.Getenv("POSTGRES_URL")
 	migrationsDir := os.Getenv("MIGRATIONS_DIR")
@@ -48,7 +60,8 @@ func main() {
 	http.HandleFunc("/", RootHandler)
 	http.HandleFunc("GET /login", LoginGetHandler)
 	http.HandleFunc("POST /login", LoginPostHandler)
-	http.HandleFunc("/home", HomeHandler)
+	http.HandleFunc("POST /logout", LogoutHandler)
+	http.HandleFunc("/home", requireAuth(HomeHandler))
 
 	http.ListenAndServe(":8080", nil)
 }
@@ -58,7 +71,8 @@ func RootHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func HomeHandler(w http.ResponseWriter, r *http.Request) {
-	homePage := templ.HomePage()
+	email, _ := libgoths.GetAuthenticatedUser(r)
+	homePage := templ.HomePage(email)
 	homePage.Render(r.Context(), w)
 }
 
@@ -92,9 +106,11 @@ func LoginPostHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	slog.Info("User logged in", "email", user.Email)
+	libgoths.SetSessionCookie(w, user.Email)
 	http.Redirect(w, r, "/home", http.StatusSeeOther)
 }
 
 func LogoutHandler(w http.ResponseWriter, r *http.Request) {
+	libgoths.ClearSessionCookie(w)
 	http.Redirect(w, r, "/login", http.StatusSeeOther)
 }

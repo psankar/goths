@@ -1,10 +1,13 @@
 package templ
 
-templ HomePage() {
+templ HomePage(email string) {
 	@BasePage() {
 		<div id="home-page">
 			<h1>Welcome to Goths</h1>
-			<button hx-post="/logout" hx-target="#home-page" hx-push-url="true">Logout</button>
+			<p>Logged in as: { email }</p>
+			<form hx-post="/logout" hx-target="body" hx-push-url="/login">
+				<button type="submit">Logout</button>
+			</form>
 		</div>
 	}
 }
