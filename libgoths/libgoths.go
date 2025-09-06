@@ -1,5 +1,10 @@
 package libgoths
 
+const (
+	LoginFailed   = "Invalid email or password"
+	InternalError = "Internal server error"
+)
+
 type LoginRequest struct {
 	Email    string `json:"email"`
 	Password string `json:"password"`
@@ -8,8 +13,3 @@ type LoginRequest struct {
 type LoginResponse struct {
 	Token string `json:"token"`
 }
-
-const (
-	LoginFailed   = "Invalid email or password"
-	InternalError = "Internal server error"
-)
