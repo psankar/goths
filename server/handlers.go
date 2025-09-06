@@ -12,11 +12,22 @@ import (
 )
 
 func RootHandler(w http.ResponseWriter, r *http.Request) {
-	http.Redirect(w, r, "/login", http.StatusSeeOther)
+	_, isAuthenticated := utils.GetAuthenticatedUser(r)
+	if !isAuthenticated {
+		http.Redirect(w, r, "/login", http.StatusSeeOther)
+		return
+	}
+
+	http.Redirect(w, r, "/home", http.StatusSeeOther)
 }
 
 func HomeHandler(w http.ResponseWriter, r *http.Request) {
-	email, _ := utils.GetAuthenticatedUser(r)
+	email, isAuthenticated := utils.GetAuthenticatedUser(r)
+	if !isAuthenticated {
+		http.Redirect(w, r, "/login", http.StatusSeeOther)
+		return
+	}
+
 	homePage := templ.HomePage(email)
 	homePage.Render(r.Context(), w)
 }
