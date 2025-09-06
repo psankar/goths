@@ -10,6 +10,7 @@ import (
 	"psankar-goths-demo/libgoths"
 	"psankar-goths-demo/sqlc/db"
 	"psankar-goths-demo/templ"
+	"psankar-goths-demo/utils"
 
 	"github.com/golang-migrate/migrate/v4"
 	_ "github.com/golang-migrate/migrate/v4/database/postgres"
@@ -22,7 +23,7 @@ var queries *db.Queries
 // requireAuth is a middleware that checks if the user is authenticated
 func requireAuth(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		_, authenticated := libgoths.GetAuthenticatedUser(r)
+		_, authenticated := utils.GetAuthenticatedUser(r)
 		if !authenticated {
 			http.Redirect(w, r, "/login", http.StatusSeeOther)
 			return
@@ -71,7 +72,7 @@ func RootHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func HomeHandler(w http.ResponseWriter, r *http.Request) {
-	email, _ := libgoths.GetAuthenticatedUser(r)
+	email, _ := utils.GetAuthenticatedUser(r)
 	homePage := templ.HomePage(email)
 	homePage.Render(r.Context(), w)
 }
@@ -106,11 +107,11 @@ func LoginPostHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	slog.Info("User logged in", "email", user.Email)
-	libgoths.SetSessionCookie(w, user.Email)
+	utils.SetSessionCookie(w, user.Email)
 	http.Redirect(w, r, "/home", http.StatusSeeOther)
 }
 
 func LogoutHandler(w http.ResponseWriter, r *http.Request) {
-	libgoths.ClearSessionCookie(w)
+	utils.ClearSessionCookie(w)
 	http.Redirect(w, r, "/login", http.StatusSeeOther)
 }
